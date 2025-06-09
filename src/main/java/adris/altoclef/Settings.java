@@ -51,6 +51,17 @@ public class Settings implements IFailableConfigFile {
      */
     private boolean showTaskChains = true;
 
+
+    /**
+     * If true, will spread items through crafting grid.
+     */
+    private boolean spreadItemsToCraft = true;
+
+    /*
+     * If true open inventory during crafting in 2x2
+     */
+    private boolean openInvDuringCrafting = true;
+
     /**
      * If true, all warning logs will be disabled.
      * <p>
@@ -443,6 +454,10 @@ public class Settings implements IFailableConfigFile {
     public String getChatLogPrefix() {
         return chatLogPrefix;
     }
+
+    public boolean shouldSpreadItemsToCraft( ) {return spreadItemsToCraft;}
+
+    public boolean shouldOpenInvDuringCrafting() {return openInvDuringCrafting;}
 
     public boolean shouldShowTimer() {
         return showTimer;

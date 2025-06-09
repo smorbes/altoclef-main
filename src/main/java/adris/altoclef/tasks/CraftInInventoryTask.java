@@ -10,6 +10,9 @@ import adris.altoclef.util.helpers.ItemHelper;
 import adris.altoclef.util.helpers.StorageHelper;
 import adris.altoclef.util.slots.PlayerSlot;
 import adris.altoclef.util.slots.Slot;
+import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.gui.screen.Screen;
+import net.minecraft.client.gui.screen.ingame.InventoryScreen;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.screen.slot.SlotActionType;
@@ -26,6 +29,8 @@ public class CraftInInventoryTask extends ResourceTask {
     private final boolean _collect;
     private final boolean _ignoreUncataloguedSlots;
     private boolean _fullCheckFailed = false;
+    private Screen invScreen;
+    private MinecraftClient client = MinecraftClient.getInstance();
 
     public CraftInInventoryTask(RecipeTarget target, boolean collect, boolean ignoreUncataloguedSlots) {
         super(new ItemTarget(target.getOutputItem(), target.getTargetCount()));
@@ -47,6 +52,7 @@ public class CraftInInventoryTask extends ResourceTask {
     protected void onResourceStart(AltoClef mod) {
         _fullCheckFailed = false;
         ItemStack cursorStack = StorageHelper.getItemStackInCursorSlot();
+        invScreen = new InventoryScreen(mod.getPlayer());
         if (!cursorStack.isEmpty()) {
             Optional<Slot> moveTo = mod.getItemStorage().getSlotThatCanFitInPlayerInventory(cursorStack, false);
             moveTo.ifPresent(slot -> mod.getSlotHandler().clickSlot(slot, 0, SlotActionType.PICKUP));
@@ -60,6 +66,7 @@ public class CraftInInventoryTask extends ResourceTask {
         } else {
             StorageHelper.closeScreen();
         } // Just to be safe I guess
+        if(mod.getModSettings().shouldOpenInvDuringCrafting() && client != null && (client.currentScreen == null || !client.currentScreen.equals(invScreen))) client.setScreen(invScreen);
     }
 
     @Override
@@ -96,6 +103,11 @@ public class CraftInInventoryTask extends ResourceTask {
 
     @Override
     protected void onResourceStop(AltoClef mod, Task interruptTask) {
+        if(mod.getModSettings().shouldOpenInvDuringCrafting() && (client != null && client.currentScreen != null && client.currentScreen.equals(invScreen))) {
+            StorageHelper.closeScreen();
+            client.setScreen(null);
+        }
+
         ItemStack cursorStack = StorageHelper.getItemStackInCursorSlot();
         if (!cursorStack.isEmpty()) {
             List<Slot> moveTo = mod.getItemStorage().getSlotsThatCanFitInPlayerInventory(cursorStack, false);

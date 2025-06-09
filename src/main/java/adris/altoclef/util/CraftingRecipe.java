@@ -87,6 +87,15 @@ public class CraftingRecipe {
         return _slots.length;
     }
 
+    public int getFilledSlotCount() {
+        int count = 0;
+        for (ItemTarget itemTarget : _slots) {
+            if (itemTarget.isEmpty()) continue;
+            count++;
+        }
+        return count;
+    }
+
     public ItemTarget[] getSlots() {
         return _slots;
     }
